@@ -1,0 +1,108 @@
+from __future__ import annotations
+import io
+from typing import Any
+
+import pandas as pd
+from fastapi import HTTPException
+from app.analytics.data_utils import profile_dataset
+
+
+def generate_pdf_report(df: pd.DataFrame, filename: str, profile: dict) -> bytes:
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.platypus import (
+            SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+        )
+
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.6*inch, bottomMargin=0.6*inch)
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle('Title2', parent=styles['Title'], textColor=colors.HexColor('#a89cff'), fontSize=20, spaceAfter=6)
+        heading_style = ParagraphStyle('Heading3', parent=styles['Heading2'], textColor=colors.HexColor('#70e6ff'), fontSize=13, spaceBefore=14, spaceAfter=6)
+        normal_style = ParagraphStyle('Normal2', parent=styles['Normal'], textColor=colors.HexColor('#c8ceed'), fontSize=9, leading=14)
+        muted_style = ParagraphStyle('Muted', parent=styles['Normal'], textColor=colors.HexColor('#7880a0'), fontSize=8)
+
+        story: list[Any] = []
+
+        # Header
+        story.append(Paragraph('DataPilot AI — Analysis Report', title_style))
+        story.append(Paragraph(f'Dataset: {filename}', normal_style))
+        story.append(HRFlowable(width='100%', thickness=0.5, color=colors.HexColor('#4040a0'), spaceAfter=10))
+
+        # Summary
+        story.append(Paragraph('Dataset Summary', heading_style))
+        summary_data = [
+            ['Metric', 'Value'],
+            ['Total Rows', f"{profile['rows']:,}"],
+            ['Total Columns', str(profile['columns'])],
+            ['Duplicate Rows', f"{profile['duplicate_rows']:,}"],
+            ['Missing Cells', f"{profile['total_missing']:,}"],
+            ['Memory Usage', f"{profile['memory_bytes'] / 1024:.1f} KB"],
+        ]
+        summary_table = Table(summary_data, colWidths=[2.5*inch, 3.5*inch])
+        summary_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e2440')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#a89cff')),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#c8ceed')),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#0e1326')),
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#3030608')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.HexColor('#0e1326'), colors.HexColor('#12192e')]),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        story.append(summary_table)
+        story.append(Spacer(1, 10))
+
+        # Column Profile
+        story.append(Paragraph('Column Profile', heading_style))
+        col_data = [['Column', 'Type', 'Missing', 'Missing %', 'Unique']]
+        for c in profile['column_profile'][:35]:
+            col_data.append([
+                str(c['name'])[:40],
+                str(c['dtype']),
+                str(c['missing']),
+                f"{c['missing_pct']:.1f}%",
+                str(c['unique']),
+            ])
+        col_table = Table(col_data, colWidths=[2.2*inch, 1.1*inch, 0.8*inch, 0.9*inch, 0.8*inch], repeatRows=1)
+        col_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e2440')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#a89cff')),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 7.5),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#c8ceed')),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#0e1326')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.HexColor('#0e1326'), colors.HexColor('#12192e')]),
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#303060')),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ]))
+        story.append(col_table)
+        story.append(Spacer(1, 10))
+
+        # Warnings
+        if profile.get('warnings'):
+            story.append(Paragraph('Data Quality Warnings', heading_style))
+            for w in profile['warnings']:
+                story.append(Paragraph(f'• {w}', normal_style))
+
+        # Footer
+        story.append(Spacer(1, 14))
+        story.append(HRFlowable(width='100%', thickness=0.4, color=colors.HexColor('#303060'), spaceAfter=6))
+        story.append(Paragraph(
+            'Generated by DataPilot AI. Numeric summaries are computed by Python (Pandas/NumPy). '
+            'AI-assisted explanations may require human review.',
+            muted_style
+        ))
+
+        doc.build(story)
+        return buffer.getvalue()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}") from e

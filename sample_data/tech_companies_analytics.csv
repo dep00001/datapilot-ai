@@ -1,0 +1,31 @@
+Company,Industry,Headquarters_State,Country,Revenue_USD_Millions,Revenue_Growth_Pct,Employees,RD_Spend_USD_Millions,Profit_Margin_Pct,Founded_Year
+Walmart,Retail,Arkansas,USA,648125,5.6,2100000,1200,2.4,1962
+Amazon,Technology,Washington,USA,574785,11.8,1525000,85600,5.3,1994
+Apple,Technology,California,USA,383285,-2.8,161000,29915,25.3,1976
+Alphabet,Technology,California,USA,307394,8.7,182502,45427,24.0,1998
+Microsoft,Technology,Washington,USA,211915,6.9,221000,27195,34.1,1975
+CVS Health,Healthcare,Rhode Island,USA,357776,10.9,300000,0,2.3,1963
+UnitedHealth Group,Healthcare,Minnesota,USA,371616,14.6,440000,0,6.0,1977
+Berkshire Hathaway,Conglomerate,Nebraska,USA,364482,20.7,396500,0,26.4,1839
+ExxonMobil,Energy,Texas,USA,344582,-16.7,62000,800,10.4,1870
+Costco,Retail,Washington,USA,242290,6.8,316000,0,2.6,1983
+Chevron,Energy,California,USA,200949,-18.4,45600,600,10.6,1879
+General Motors,Automotive,Michigan,USA,171842,9.6,163000,9800,5.9,1908
+Ford Motor,Automotive,Michigan,USA,176191,11.5,177000,8200,2.5,1903
+JPMorgan Chase,Financials,New York,USA,158104,19.4,309926,0,31.4,1799
+Bank of America,Financials,North Carolina,USA,98581,4.2,213000,0,26.9,1904
+Tesla,Automotive,Texas,USA,96773,18.8,140473,3969,15.5,2003
+Meta Platforms,Technology,California,USA,134902,15.7,67317,38483,29.0,2004
+Target,Retail,Minnesota,USA,107412,-1.6,415000,0,3.8,1902
+Home Depot,Retail,Georgia,USA,152669,-3.0,465000,0,10.1,1978
+Johnson & Johnson,Healthcare,New Jersey,USA,85159,6.5,131900,15085,21.0,1886
+NVIDIA,Technology,California,USA,60922,125.9,29600,8675,48.8,1993
+Pfizer,Healthcare,New York,USA,58496,-41.7,88000,10679,3.6,1849
+Adobe,Technology,California,USA,19409,10.2,29945,3400,28.0,1982
+Salesforce,Technology,California,USA,34857,11.2,72682,5000,12.0,1999
+Netflix,Technology,California,USA,33723,6.7,13000,2600,16.0,1997
+Intel,Technology,California,USA,54228,-14.0,124800,16000,3.1,1968
+Oracle,Technology,Texas,USA,49954,17.7,164000,8600,18.0,1977
+Cisco Systems,Technology,California,USA,56998,10.5,84900,7550,22.1,1984
+IBM,Technology,New York,USA,61860,2.2,282200,6900,12.1,1911
+Qualcomm,Technology,California,USA,35820,-19.0,50000,8800,20.0,1985
